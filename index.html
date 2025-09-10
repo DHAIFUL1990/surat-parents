@@ -100,14 +100,6 @@
   </select>
 </div>
 
-<!-- Textarea asal -->
-<div class="mt-4">
-  <label for="body" class="block text-sm font-medium text-gray-700">Isi Kandungan Surat</label>
-  <textarea id="body" rows="6"
-    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-    placeholder="Contoh: Anak yang dibawah jagaan saya yang bernama XXXXXXXX Bin/Binti XXXXXXX tidak dapat menghadirkan diri kerana ..."></textarea>
-</div>
-
 <!-- Script -->
 <script>
   const reasonSelect = document.getElementById('reason');
@@ -116,7 +108,7 @@
   reasonSelect.addEventListener('change', () => {
     const reason = reasonSelect.value;
     if (reason) {
-      bodyTextarea.value = `Anak yang dibawah jagaan saya yang bernama __________ Bin/Binti __________ tidak dapat menghadirkan diri kerana ${reason}.`;
+      bodyTextarea.value = `Anak yang dibawah jagaan saya yang bernama _________________ dari kelas __________ tidak dapat menghadirkan diri kerana ${reason}.`;
     } else {
       bodyTextarea.value = '';
     }
