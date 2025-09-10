@@ -80,4 +80,165 @@
       <input id="lainInput" type="text" placeholder="Contoh: menghadiri majlis keluarga">
     </div>
 
-    <!-- Nama Guru Kel
+    <!-- Nama Guru Kelas -->
+    <label for="guru">Nama Guru Kelas</label>
+    <input id="guru" type="text" placeholder="Contoh: Cikgu Aminah">
+
+    <!-- Tarikh Tidak Hadir -->
+    <label for="tarikh">Tarikh Tidak Hadir</label>
+    <input id="tarikh" type="date">
+
+    <div class="hint">Semua medan perlu dilengkapkan sebelum preview. "Alamat Ibu/Bapa/Penjaga" adalah alamat pengirim yang akan muncul di atas surat.</div>
+
+    <div style="margin-top:10px;">
+      <button id="previewBtn" class="btn">Preview Surat</button>
+      <button id="clearBtn" type="button" class="btn secondary">Set Semula</button>
+    </div>
+
+    <div id="previewContainer" style="display:none;">
+      <label style="margin-top:14px; font-weight:600;">Isi Kandungan Surat (Preview)</label>
+      <div id="previewBox">Preview akan muncul di sini selepas tekan "Preview Surat".</div>
+
+      <div class="controls">
+        <button id="copyBtn" class="btn">Salin Surat</button>
+        <button id="printBtn" class="btn">Cetak / Simpan PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const penjagaInput = document.getElementById('penjaga');
+    const alamatPenjagaInput = document.getElementById('alamatPenjaga');
+    const namaInput = document.getElementById('nama');
+    const kelasSel = document.getElementById('kelas');
+    const reasonSel = document.getElementById('reason');
+    const lainDiv = document.getElementById('lainDiv');
+    const lainInput = document.getElementById('lainInput');
+    const guruInput = document.getElementById('guru');
+    const tarikhInput = document.getElementById('tarikh');
+    const previewBtn = document.getElementById('previewBtn');
+    const previewBox = document.getElementById('previewBox');
+    const previewContainer = document.getElementById('previewContainer');
+    const copyBtn = document.getElementById('copyBtn');
+    const printBtn = document.getElementById('printBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // default tarikh = hari ini
+    (function setToday() {
+      const t = new Date();
+      const yyyy = t.getFullYear();
+      const mm = String(t.getMonth()+1).padStart(2,'0');
+      const dd = String(t.getDate()).padStart(2,'0');
+      tarikhInput.value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    // show/hide input for "Lain-lain"
+    reasonSel.addEventListener('change', () => {
+      if (reasonSel.value === 'lain') {
+        lainDiv.style.display = '';
+      } else {
+        lainDiv.style.display = 'none';
+        lainInput.value = '';
+      }
+    });
+
+    function formatDateForDisplay(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function buildPreview() {
+      const penjaga = penjagaInput.value.trim();
+      const alamat = alamatPenjagaInput.value.trim();
+      const nama = namaInput.value.trim();
+      const kelas = kelasSel.value;
+      let reason = reasonSel.value;
+      const lainText = lainInput.value.trim();
+      const guru = guruInput.value.trim();
+      const tarikh = tarikhInput.value;
+
+      if (reason === 'lain') reason = lainText || '';
+      // validate
+      if (!penjaga) { alert('Sila isi nama Ibu/Bapa/Penjaga.'); return; }
+      if (!alamat) { alert('Sila isi alamat Ibu/Bapa/Penjaga.'); return; }
+      if (!nama) { alert('Sila isi nama murid.'); return; }
+      if (!kelas) { alert('Sila pilih kelas murid.'); return; }
+      if (!reason) { alert('Sila pilih atau nyatakan sebab tidak hadir.'); return; }
+      if (!guru) { alert('Sila isi nama Guru Kelas.'); return; }
+
+      const todayStr = formatDateForDisplay(new Date().toISOString().slice(0,10));
+      const tarikhDisplay = tarikh ? formatDateForDisplay(tarikh) : '________________';
+
+      // build sender address block (preserve line breaks)
+      const alamatLines = alamat.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+      // build letter text (plain text)
+      let letter = '';
+      // Sender (Parent) address lines
+      letter += `${penjaga}\n`;
+      alamatLines.forEach(line => { letter += `${line}\n`; });
+      letter += `\n${todayStr}\n\n`;
+
+      // Recipient (school)
+      letter += `Kepada,\n`;
+      letter += `Guru Kelas ${guru}\n`;
+      letter += `Guru Kelas ${kelas}\n`;
+      letter += `SK Lubok Terua\n`;
+      letter += `28500 Lanchang\n`;
+      letter += `Pahang Darul Makmur\n\n`;
+
+      letter += `Tuan/Puan,\n\n`;
+      letter += `PERMOHONAN CUTI TIDAK HADIR KE SEKOLAH\n\n`;
+      letter += `Saya yang bertandatangan di bawah ingin memaklumkan bahawa anak saya:\n\n`;
+      letter += `Nama Murid         : ${nama}\n`;
+      letter += `Kelas              : ${kelas}\n`;
+      letter += `Tarikh Tidak Hadir : ${tarikhDisplay}\n`;
+      letter += `Sebab Tidak Hadir  : ${reason}\n\n`;
+      letter += `tidak dapat hadir ke sekolah pada tarikh yang dinyatakan di atas.\n\n`;
+      letter += `Sekian, terima kasih.\n\n`;
+      letter += `Yang benar,\n\n`;
+      letter += `${penjaga}\n(Ibu/Bapa/Penjaga)\n`;
+
+      previewBox.textContent = letter;
+      previewContainer.style.display = '';
+    }
+
+    previewBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      buildPreview();
+      previewBox.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(previewBox.textContent).then(() => {
+        alert('Surat telah disalin ke papan klip.');
+      }).catch(() => {
+        alert('Tidak dapat menyalin secara automatik. Sila salin manual.');
+      });
+    });
+
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      penjagaInput.value = '';
+      alamatPenjagaInput.value = '';
+      namaInput.value = '';
+      kelasSel.value = '';
+      reasonSel.value = '';
+      lainInput.value = '';
+      guruInput.value = '';
+      tarikhInput.value = new Date().toISOString().slice(0,10);
+      previewContainer.style.display = 'none';
+      previewBox.textContent = '';
+    });
+  </script>
+</body>
+</html>
