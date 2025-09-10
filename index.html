@@ -5,24 +5,21 @@
   <title>Surat Tidak Hadir - SK LUBOK TERUA</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    :root { --blue:#2b7ed7; --muted:#6b7280; --card:#fff; --bg:#f6f7fb; }
-    body { font-family: "Arial", sans-serif; background:var(--bg); color:#111; padding:20px; }
-    .container { max-width:860px; margin:0 auto; background:var(--card); padding:22px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    body { font-family: "Arial", sans-serif; background:#f6f7fb; color:#111; padding:20px; }
+    .container { max-width:860px; margin:0 auto; background:#fff; padding:22px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     h1 { text-align:center; margin:6px 0 2px; font-size:1.4rem;}
-    h2 { text-align:center; margin:0 0 12px; font-size:1rem; color:var(--muted); }
+    h2 { text-align:center; margin:0 0 12px; font-size:1rem; color:#555; }
     label { display:block; margin-top:12px; font-weight:600; font-size:0.95rem; }
     input[type="text"], input[type="date"], select, textarea {
       width:100%; padding:10px; margin-top:6px; border:1px solid #d0d3d9; border-radius:6px; box-sizing:border-box;
       font-size:0.95rem;
     }
     textarea { min-height:84px; resize:vertical; }
-    .row { display:flex; gap:12px; }
-    .col { flex:1; }
-    .btn { margin-top:12px; padding:10px 14px; border:0; background:var(--blue); color:#fff; border-radius:6px; cursor:pointer; }
+    .btn { margin-top:12px; padding:10px 14px; border:0; background:#2b7ed7; color:#fff; border-radius:6px; cursor:pointer; }
     .btn.secondary { background:#6b7280; }
     .controls { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
     #previewBox { margin-top:18px; padding:18px; background:#fafafa; border-radius:6px; white-space:pre-wrap; border:1px solid #e6e9ef; min-height:160px; font-family:monospace; }
-    .hint { color:var(--muted); margin-top:8px; font-size:0.9rem; }
+    .hint { color:#666; margin-top:8px; font-size:0.9rem; }
     @media print {
       body * { visibility: hidden; }
       #previewBox, #previewBox * { visibility: visible; }
@@ -41,7 +38,7 @@
 
     <!-- Alamat Ibu/Bapa/Penjaga -->
     <label for="alamatPenjaga">Alamat Ibu/Bapa/Penjaga (Pengirim)</label>
-    <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini (baris baru dipisah dengan Enter). Contoh: No. 12, Jalan Sekolah, 28500 Lanchang, Pahang"></textarea>
+    <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini"></textarea>
 
     <!-- Nama Murid -->
     <label for="nama">Nama Penuh Murid</label>
@@ -49,7 +46,7 @@
 
     <!-- Pilih kelas -->
     <label for="kelas">Kelas Murid</label>
-    <select id="kelas" aria-label="Pilih Kelas">
+    <select id="kelas">
       <option value="">-- Pilih Kelas --</option>
       <option value="1 Ibnu Sina">1 Ibnu Sina</option>
       <option value="2 Ibnu Sina">2 Ibnu Sina</option>
@@ -62,7 +59,7 @@
 
     <!-- Sebab -->
     <label for="reason">Sebab Tidak Hadir</label>
-    <select id="reason" aria-label="Pilih Sebab">
+    <select id="reason">
       <option value="">-- Pilih Sebab --</option>
       <option value="Demam">Demam</option>
       <option value="Sakit lain">Sakit lain</option>
@@ -88,7 +85,7 @@
     <label for="tarikh">Tarikh Tidak Hadir</label>
     <input id="tarikh" type="date">
 
-    <div class="hint">Semua medan perlu dilengkapkan sebelum preview. "Alamat Ibu/Bapa/Penjaga" adalah alamat pengirim yang akan muncul di atas surat.</div>
+    <div class="hint">Semua maklumat perlu diisi sebelum "Preview Surat".</div>
 
     <div style="margin-top:10px;">
       <button id="previewBtn" class="btn">Preview Surat</button>
@@ -107,7 +104,6 @@
   </div>
 
   <script>
-    // Elements
     const penjagaInput = document.getElementById('penjaga');
     const alamatPenjagaInput = document.getElementById('alamatPenjaga');
     const namaInput = document.getElementById('nama');
@@ -124,7 +120,6 @@
     const printBtn = document.getElementById('printBtn');
     const clearBtn = document.getElementById('clearBtn');
 
-    // default tarikh = hari ini
     (function setToday() {
       const t = new Date();
       const yyyy = t.getFullYear();
@@ -133,7 +128,6 @@
       tarikhInput.value = `${yyyy}-${mm}-${dd}`;
     })();
 
-    // show/hide input for "Lain-lain"
     reasonSel.addEventListener('change', () => {
       if (reasonSel.value === 'lain') {
         lainDiv.style.display = '';
@@ -164,28 +158,27 @@
       const tarikh = tarikhInput.value;
 
       if (reason === 'lain') reason = lainText || '';
-      // validate
-      if (!penjaga) { alert('Sila isi nama Ibu/Bapa/Penjaga.'); return; }
-      if (!alamat) { alert('Sila isi alamat Ibu/Bapa/Penjaga.'); return; }
-      if (!nama) { alert('Sila isi nama murid.'); return; }
-      if (!kelas) { alert('Sila pilih kelas murid.'); return; }
-      if (!reason) { alert('Sila pilih atau nyatakan sebab tidak hadir.'); return; }
-      if (!guru) { alert('Sila isi nama Guru Kelas.'); return; }
+      if (!penjaga || !alamat || !nama || !kelas || !reason || !guru) {
+        alert("Sila lengkapkan semua maklumat.");
+        return;
+      }
 
       const todayStr = formatDateForDisplay(new Date().toISOString().slice(0,10));
       const tarikhDisplay = tarikh ? formatDateForDisplay(tarikh) : '________________';
 
-      // build sender address block (preserve line breaks)
-      const alamatLines = alamat.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      const alamatLines = alamat.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      let senderBlock = `${penjaga}\n`;
+      alamatLines.forEach(l => senderBlock += `${l}\n`);
 
-      // build letter text (plain text)
       let letter = '';
-      // Sender (Parent) address lines
-      letter += `${penjaga}\n`;
-      alamatLines.forEach(line => { letter += `${line}\n`; });
-      letter += `\n${todayStr}\n\n`;
+      letter += senderBlock;
 
-      // Recipient (school)
+      const lastLine = alamatLines[alamatLines.length-1] || '';
+      const spacePad = ' '.repeat(Math.max(2, 50 - lastLine.length)); 
+      letter += spacePad + todayStr + `\n\n`;
+
+      letter += "__________________________________________________\n\n";
+
       letter += `Kepada,\n`;
       letter += `Guru Kelas ${guru}\n`;
       letter += `Guru Kelas ${kelas}\n`;
@@ -202,7 +195,7 @@
       letter += `Sebab Tidak Hadir  : ${reason}\n\n`;
       letter += `tidak dapat hadir ke sekolah pada tarikh yang dinyatakan di atas.\n\n`;
       letter += `Sekian, terima kasih.\n\n`;
-      letter += `Yang benar,\n\n`;
+      letter += `Yang benar,\n\n\n`;
       letter += `${penjaga}\n(Ibu/Bapa/Penjaga)\n`;
 
       previewBox.textContent = letter;
