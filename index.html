@@ -82,6 +82,47 @@
                     <label for="salutation" class="block text-sm font-medium text-gray-700">Pembuka Kata</label>
                     <input type="text" id="salutation" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="Tuan/Puan,">
                 </div>
+              <!-- Dropdown Sebab -->
+<div>
+  <label for="reason" class="block text-sm font-medium text-gray-700">
+    Sebab Tidak Hadir
+  </label>
+  <select id="reason" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+    <option value="">-- Pilih Sebab --</option>
+    <option value="demam">Demam</option>
+    <option value="sakit">Sakit lain</option>
+    <option value="rawatan">Temu janji rawatan hospital/klinik</option>
+    <option value="urusan keluarga">Urusan keluarga</option>
+    <option value="kemalangan">Kemalangan</option>
+    <option value="banjir">Banjir / bencana alam</option>
+    <option value="tiada pengangkutan">Tiada pengangkutan</option>
+    <option value="lain">Lain-lain</option>
+  </select>
+</div>
+
+<!-- Textarea asal -->
+<div class="mt-4">
+  <label for="body" class="block text-sm font-medium text-gray-700">Isi Kandungan Surat</label>
+  <textarea id="body" rows="6"
+    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+    placeholder="Contoh: Anak yang dibawah jagaan saya yang bernama XXXXXXXX Bin/Binti XXXXXXX tidak dapat menghadirkan diri kerana ..."></textarea>
+</div>
+
+<!-- Script -->
+<script>
+  const reasonSelect = document.getElementById('reason');
+  const bodyTextarea = document.getElementById('body');
+
+  reasonSelect.addEventListener('change', () => {
+    const reason = reasonSelect.value;
+    if (reason) {
+      bodyTextarea.value = `Anak yang dibawah jagaan saya yang bernama __________ Bin/Binti __________ tidak dapat menghadirkan diri kerana ${reason}.`;
+    } else {
+      bodyTextarea.value = '';
+    }
+  });
+</script>
+
                 <div>
                     <label for="body" class="block text-sm font-medium text-gray-700">Isi Kandungan Surat</label>
                     <textarea id="body" rows="10" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: Anak yang dibawah jagaan saya yang bernama XXXXXXXX Bin/Binti XXXXXXX tidak dapat menghadirkan diri kerana ___________________________________________________________"></textarea>
