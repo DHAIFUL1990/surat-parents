@@ -82,12 +82,31 @@
                     <label for="salutation" class="block text-sm font-medium text-gray-700">Pembuka Kata</label>
                     <input type="text" id="salutation" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="Tuan/Puan,">
                 </div>
-              <!-- Dropdown Sebab -->
+              <!-- Dropdown Kelas -->
 <div>
+  <label for="kelas" class="block text-sm font-medium text-gray-700">
+    Kelas Murid
+  </label>
+  <select id="kelas" 
+    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+    <option value="">-- Pilih Kelas --</option>
+    <option value="1 Ibnu Sina">1 Ibnu Sina</option>
+    <option value="2 Ibnu Sina">2 Ibnu Sina</option>
+    <option value="3 Ibnu Sina">3 Ibnu Sina</option>
+    <option value="4 Ibnu Sina">4 Ibnu Sina</option>
+    <option value="5 Ibnu Sina">5 Ibnu Sina</option>
+    <option value="6 Ibnu Sina">6 Ibnu Sina</option>
+    <option value="6 Ibnu Rushd">6 Ibnu Rushd</option>
+  </select>
+</div>
+
+<!-- Dropdown Sebab -->
+<div class="mt-4">
   <label for="reason" class="block text-sm font-medium text-gray-700">
     Sebab Tidak Hadir
   </label>
-  <select id="reason" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+  <select id="reason" 
+    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
     <option value="">-- Pilih Sebab --</option>
     <option value="demam">Demam</option>
     <option value="sakit">Sakit lain</option>
@@ -100,33 +119,65 @@
   </select>
 </div>
 
-<!-- Script -->
-<script>
-  const reasonSelect = document.getElementById('reason');
-  const bodyTextarea = document.getElementById('body');
+<!-- Input tambahan jika pilih "Lain-lain" -->
+<div id="lainInputDiv" class="mt-4 hidden">
+  <label for="lainInput" class="block text-sm font-medium text-gray-700">Nyatakan Sebab Lain</label>
+  <input type="text" id="lainInput" 
+         class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+         placeholder="Contoh: menghadiri majlis perkahwinan keluarga">
+</div>
 
-  reasonSelect.addEventListener('change', () => {
-    const reason = reasonSelect.value;
-    if (reason) {
-      bodyTextarea.value = `Anak yang dibawah jagaan saya yang bernama _________________ dari kelas __________ tidak dapat menghadirkan diri kerana ${reason}.`;
-    } else {
-      bodyTextarea.value = '';
+<!-- Output paparan ayat penuh -->
+<div class="mt-4">
+  <label class="block text-sm font-medium text-gray-700">Isi Kandungan Surat</label>
+  <div id="output" 
+       class="mt-1 p-3 border border-gray-300 rounded-md bg-gray-50 shadow-sm min-h-[100px]">
+    Sila pilih kelas dan sebab di atas.
+  </div>
+</div>
+
+<script>
+  const kelasSelect = document.getElementById('kelas');
+  const reasonSelect = document.getElementById('reason');
+  const outputDiv = document.getElementById('output');
+  const lainInputDiv = document.getElementById('lainInputDiv');
+  const lainInput = document.getElementById('lainInput');
+
+  function updateLetter() {
+    const kelas = kelasSelect.value;
+    let reason = reasonSelect.value;
+
+    if (reason === "lain") {
+      reason = lainInput.value ? lainInput.value : "lain-lain";
     }
+
+    if (kelas && reason) {
+      outputDiv.textContent = 
+        `Anak yang dibawah jagaan saya yang bernama __________ Bin/Binti __________ dari kelas ${kelas} tidak dapat menghadirkan diri kerana ${reason}.`;
+    } else if (!kelas && !reason) {
+      outputDiv.textContent = "Sila pilih kelas dan sebab di atas.";
+    } else if (!kelas) {
+      outputDiv.textContent = "Sila pilih kelas murid.";
+    } else {
+      outputDiv.textContent = "Sila pilih sebab tidak hadir.";
+    }
+  }
+
+  // Bila dropdown sebab ditukar
+  reasonSelect.addEventListener('change', () => {
+    if (reasonSelect.value === "lain") {
+      lainInputDiv.classList.remove("hidden");
+    } else {
+      lainInputDiv.classList.add("hidden");
+      lainInput.value = "";
+    }
+    updateLetter();
   });
+
+  kelasSelect.addEventListener('change', updateLetter);
+  lainInput.addEventListener('input', updateLetter);
 </script>
 
-                <div>
-                    <label for="body" class="block text-sm font-medium text-gray-700">Isi Kandungan Surat</label>
-                    <textarea id="body" rows="10" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: Anak yang dibawah jagaan saya yang bernama XXXXXXXX Bin/Binti XXXXXXX tidak dapat menghadirkan diri kerana ___________________________________________________________"></textarea>
-                </div>
-                <div>
-                    <label for="closing" class="block text-sm font-medium text-gray-700">Penutup Surat</label>
-                    <input type="text" id="closing" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="Sekian, terima kasih.">
-                </div>
-                <div>
-                    <label for="signature" class="block text-sm font-medium text-gray-700">Tandatangan (Nama Penuh)</label>
-                    <input type="text" id="signature" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Nama Penuh Anda">
-                </div>
             </div>
 
             <!-- Pratonton Surat -->
