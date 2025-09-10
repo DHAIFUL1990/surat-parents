@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8" />
+  <title>Surat Tidak Hadir - SK LUBOK TERUA</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: "Arial", sans-serif; background:#f6f7fb; color:#111; padding:30px; }
+    .container { max-width:760px; margin:0 auto; background:#fff; padding:22px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    h1,h2 { text-align:center; margin:6px 0; }
+    form { margin-top:16px; }
+    label { display:block; margin-top:12px; font-weight:600; }
+    input[type="text"], input[type="date"], select, textarea { width:100%; padding:10px; margin-top:6px; border:1px solid #d0d3d9; border-radius:6px; box-sizing:border-box; }
+    .row { display:flex; gap:12px; }
+    .col { flex:1; }
+    button { margin-top:14px; padding:10px 14px; border:0; background:#2b7ed7; color:#fff; border-radius:6px; cursor:pointer; }
+    #output { margin-top:22px; padding:18px; background:#fafafa; border-radius:6px; white-space:pre-wrap; border:1px solid #e6e9ef; }
+    .actions { margin-top:10px; display:flex; gap:8px; }
+    @media print {
+      body * { visibility: hidden; }
+      #output, #output * { visibility: visible; }
+      #output { position: absolute; left:0; top:0; width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SK LUBOK TERUA</h1>
+    <h2>Surat Rasmi Tidak Hadir ke Sekolah</h2>
+
+    <form id="form" onsubmit="generateLetter(); return false;">
+      <label>Nama Murid</label>
+      <input id="nama" type="text" placeholder="Contoh: Ahmad bin Ali" required>
+
+      <div class="row">
+        <div class="col">
+          <label>Kelas</label>
+          <input id="kelas" type="text" placeholder="Contoh: Tahun 4 / 4A" required>
+        </div>
+        <div class="col">
+          <label>Tarikh Tidak Hadir</label>
+          <input id="tarikh" type="date" required>
+        </div>
+      </div>
+
+      <label>Sebab Tidak Hadir (pilihan — optional)</label>
+      <select id="sebab">
+        <option value="">-- (Sila pilih jika berkaitan) --</option>
+        <option>Demam / Sakit</option>
+        <option>Lawatan ke klinik / hospital</option>
+        <option>Urusan keluarga</option>
+        <option>Kemalangan</option>
+        <option>Lain-lain (sila nyatakan)</option>
+      </select>
+
+      <label>Nyatakan (jika pilih Lain-lain)</label>
+      <input id="sebab-lain" type="text" placeholder="Nyatakan jika pilih Lain-lain">
+
+      <label>Nama Ibu / Bapa / Penjaga</label>
+      <input id="penjaga" type="text" placeholder="Nama penuh" required>
+
+      <div class="actions">
+        <button type="submit">Jana Surat</button>
+        <button type="button" onclick="clearOutput()">Kosongkan</button>
+      </div>
+    </form>
+
+    <div id="output" style="display:none;"></div>
+    <div id="controls" style="display:none; margin-top:8px;">
+      <button onclick="copyText()">Salin Surat</button>
+      <button onclick="window.print()">Cetak / Simpan PDF</button>
+    </div>
+  </div>
+
+  <script>
+    function generateLetter() {
+      const nama = document.getElementById('nama').value.trim();
+      const kelas = document.getElementById('kelas').value.trim();
+      const tarikhVal = document.getElementById('tarikh').value;
+      const pilihSebab = document.getElementById('sebab').value;
+      const sebabLain = document.getElementById('sebab-lain').value.trim();
+      const penjaga = document.getElementById('penjaga').value.trim();
+
+      // format tarikh ke format dd/mm/yyyy (ms-MY)
+      const tarikh = tarikhVal ? new Date(tarikhVal).toLocaleDateString('ms-MY') : '';
+
+      // tentukan text sebab jika ada
+      let sebabText = '';
+      if (pilihSebab && pilihSebab !== 'Lain-lain (sila nyatakan)') {
+        sebabText = pilihSebab;
+      } else if (pilihSebab === 'Lain-lain (sila nyatakan)' && sebabLain) {
+        sebabText = sebabLain;
+      }
+
+      // bina surat
+      const today = new Date().toLocaleDateString('ms-MY');
+      let letter = '';
+      letter += 'SK LUBOK TERUA\n';
+      letter += `${today}\n\n`;
+      letter += 'Guru Kelas,\nSK Lubok Terua\n\n';
+      letter += 'Tuan/Puan,\n\n';
+      letter += 'PERMOHONAN CUTI TIDAK HADIR KE SEKOLAH\n\n';
+      letter += 'Saya yang bertandatangan di bawah:\n\n';
+      letter += `Nama Murid : ${nama}\n`;
+      letter += `Kelas      : ${kelas}\n`;
+      letter += `Tarikh Tidak Hadir : ${tarikh}\n`;
+      if (sebabText) letter += `Sebab Tidak Hadir    : ${sebabText}\n`;
+      letter += '\nDengan ini memaklumkan bahawa anak saya tidak dapat hadir ke sekolah pada tarikh seperti di atas.\n\n';
+      letter += 'Sekian, terima kasih.\n\n';
+      letter += 'Yang benar,\n\n';
+      letter += '__________________________\n';
+      letter += `${penjaga}\n(Ibu/Bapa/Penjaga)\n`;
+
+      // paparkan
+      const out = document.getElementById('output');
+      out.style.display = 'block';
+      out.textContent = letter;
+
+      document.getElementById('controls').style.display = 'block';
+      // scroll ke output
+      out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function copyText() {
+      const out = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(out).then(() => {
+        alert('Surat telah disalin ke papan klip.');
+      }, () => {
+        alert('Tidak dapat menyalin. Sila salin secara manual.');
+      });
+    }
+
+    function clearOutput(){
+      document.getElementById('output').style.display='none';
+      document.getElementById('output').textContent='';
+      document.getElementById('controls').style.display='none';
+      document.getElementById('form').reset();
+    }
+  </script>
+</body>
+</html>
