@@ -5,8 +5,9 @@
   <title>Surat Tidak Hadir - SK LUBOK TERUA</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: "Arial", sans-serif; background:#f6f7fb; color:#111; padding:20px; }
-    .container { max-width:860px; margin:0 auto; background:#fff; padding:22px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    body { font-family: Arial, sans-serif; background:#f6f7fb; color:#111; padding:20px; }
+    .container { max-width:860px; margin:0 auto; background:#fff; padding:22px; border-radius:8px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     h1 { text-align:center; margin:6px 0 2px; font-size:1.4rem;}
     h2 { text-align:center; margin:0 0 12px; font-size:1rem; color:#555; }
     label { display:block; margin-top:12px; font-weight:600; font-size:0.95rem; }
@@ -18,7 +19,9 @@
     .btn { margin-top:12px; padding:10px 14px; border:0; background:#2b7ed7; color:#fff; border-radius:6px; cursor:pointer; }
     .btn.secondary { background:#6b7280; }
     .controls { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
-    #previewBox { margin-top:18px; padding:18px; background:#fafafa; border-radius:6px; white-space:pre-wrap; border:1px solid #e6e9ef; min-height:160px; font-family:monospace; }
+    /* preview uses monospace so spacing/padding works */
+    #previewBox { margin-top:18px; padding:18px; background:#fafafa; border-radius:6px; white-space:pre-wrap;
+      border:1px solid #e6e9ef; min-height:160px; font-family: "Courier New", monospace; font-size:0.95rem; }
     .hint { color:#666; margin-top:8px; font-size:0.9rem; }
     @media print {
       body * { visibility: hidden; }
@@ -38,7 +41,7 @@
 
     <!-- Alamat Ibu/Bapa/Penjaga -->
     <label for="alamatPenjaga">Alamat Ibu/Bapa/Penjaga (Pengirim)</label>
-    <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini"></textarea>
+    <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini (baris baru dipisah Enter)"></textarea>
 
     <!-- Nama Murid -->
     <label for="nama">Nama Penuh Murid</label>
@@ -64,174 +67,3 @@
       <option value="Demam">Demam</option>
       <option value="Sakit lain">Sakit lain</option>
       <option value="Temu janji rawatan hospital/klinik">Temu janji rawatan hospital/klinik</option>
-      <option value="Urusan keluarga">Urusan keluarga</option>
-      <option value="Kemalangan">Kemalangan</option>
-      <option value="Banjir / bencana alam">Banjir / bencana alam</option>
-      <option value="Tiada pengangkutan">Tiada pengangkutan</option>
-      <option value="lain">Lain-lain</option>
-    </select>
-
-    <!-- Input tambahan jika Lain-lain -->
-    <div id="lainDiv" style="display:none;">
-      <label for="lainInput">Nyatakan Sebab (Lain-lain)</label>
-      <input id="lainInput" type="text" placeholder="Contoh: menghadiri majlis keluarga">
-    </div>
-
-    <!-- Nama Guru Kelas -->
-    <label for="guru">Nama Guru Kelas</label>
-    <input id="guru" type="text" placeholder="Contoh: Cikgu Aminah">
-
-    <!-- Tarikh Tidak Hadir -->
-    <label for="tarikh">Tarikh Tidak Hadir</label>
-    <input id="tarikh" type="date">
-
-    <div class="hint">Semua maklumat perlu diisi sebelum "Preview Surat".</div>
-
-    <div style="margin-top:10px;">
-      <button id="previewBtn" class="btn">Preview Surat</button>
-      <button id="clearBtn" type="button" class="btn secondary">Set Semula</button>
-    </div>
-
-    <div id="previewContainer" style="display:none;">
-      <label style="margin-top:14px; font-weight:600;">Isi Kandungan Surat (Preview)</label>
-      <div id="previewBox">Preview akan muncul di sini selepas tekan "Preview Surat".</div>
-
-      <div class="controls">
-        <button id="copyBtn" class="btn">Salin Surat</button>
-        <button id="printBtn" class="btn">Cetak / Simpan PDF</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const penjagaInput = document.getElementById('penjaga');
-    const alamatPenjagaInput = document.getElementById('alamatPenjaga');
-    const namaInput = document.getElementById('nama');
-    const kelasSel = document.getElementById('kelas');
-    const reasonSel = document.getElementById('reason');
-    const lainDiv = document.getElementById('lainDiv');
-    const lainInput = document.getElementById('lainInput');
-    const guruInput = document.getElementById('guru');
-    const tarikhInput = document.getElementById('tarikh');
-    const previewBtn = document.getElementById('previewBtn');
-    const previewBox = document.getElementById('previewBox');
-    const previewContainer = document.getElementById('previewContainer');
-    const copyBtn = document.getElementById('copyBtn');
-    const printBtn = document.getElementById('printBtn');
-    const clearBtn = document.getElementById('clearBtn');
-
-    (function setToday() {
-      const t = new Date();
-      const yyyy = t.getFullYear();
-      const mm = String(t.getMonth()+1).padStart(2,'0');
-      const dd = String(t.getDate()).padStart(2,'0');
-      tarikhInput.value = `${yyyy}-${mm}-${dd}`;
-    })();
-
-    reasonSel.addEventListener('change', () => {
-      if (reasonSel.value === 'lain') {
-        lainDiv.style.display = '';
-      } else {
-        lainDiv.style.display = 'none';
-        lainInput.value = '';
-      }
-    });
-
-    function formatDateForDisplay(dateStr) {
-      if (!dateStr) return '';
-      const d = new Date(dateStr);
-      if (isNaN(d)) return dateStr;
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      const yyyy = d.getFullYear();
-      return `${dd}/${mm}/${yyyy}`;
-    }
-
-    function buildPreview() {
-      const penjaga = penjagaInput.value.trim();
-      const alamat = alamatPenjagaInput.value.trim();
-      const nama = namaInput.value.trim();
-      const kelas = kelasSel.value;
-      let reason = reasonSel.value;
-      const lainText = lainInput.value.trim();
-      const guru = guruInput.value.trim();
-      const tarikh = tarikhInput.value;
-
-      if (reason === 'lain') reason = lainText || '';
-      if (!penjaga || !alamat || !nama || !kelas || !reason || !guru) {
-        alert("Sila lengkapkan semua maklumat.");
-        return;
-      }
-
-      const todayStr = formatDateForDisplay(new Date().toISOString().slice(0,10));
-      const tarikhDisplay = tarikh ? formatDateForDisplay(tarikh) : '________________';
-
-      const alamatLines = alamat.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      let senderBlock = `${penjaga}\n`;
-      alamatLines.forEach(l => senderBlock += `${l}\n`);
-
-      let letter = '';
-      letter += senderBlock;
-
-      const lastLine = alamatLines[alamatLines.length-1] || '';
-      const spacePad = ' '.repeat(Math.max(2, 50 - lastLine.length)); 
-      letter += spacePad + todayStr + `\n\n`;
-
-      letter += "__________________________________________________\n\n";
-
-      letter += `Kepada,\n`;
-      letter += `Guru Kelas ${guru}\n`;
-      letter += `Guru Kelas ${kelas}\n`;
-      letter += `SK Lubok Terua\n`;
-      letter += `28500 Lanchang\n`;
-      letter += `Pahang Darul Makmur\n\n`;
-
-      letter += `Tuan/Puan,\n\n`;
-      letter += `PERMOHONAN CUTI TIDAK HADIR KE SEKOLAH\n\n`;
-      letter += `Saya yang bertandatangan di bawah ingin memaklumkan bahawa anak saya:\n\n`;
-      letter += `Nama Murid         : ${nama}\n`;
-      letter += `Kelas              : ${kelas}\n`;
-      letter += `Tarikh Tidak Hadir : ${tarikhDisplay}\n`;
-      letter += `Sebab Tidak Hadir  : ${reason}\n\n`;
-      letter += `tidak dapat hadir ke sekolah pada tarikh yang dinyatakan di atas.\n\n`;
-      letter += `Sekian, terima kasih.\n\n`;
-      letter += `Yang benar,\n\n\n`;
-      letter += `${penjaga}\n(Ibu/Bapa/Penjaga)\n`;
-
-      previewBox.textContent = letter;
-      previewContainer.style.display = '';
-    }
-
-    previewBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      buildPreview();
-      previewBox.scrollIntoView({behavior:'smooth', block:'start'});
-    });
-
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(previewBox.textContent).then(() => {
-        alert('Surat telah disalin ke papan klip.');
-      }).catch(() => {
-        alert('Tidak dapat menyalin secara automatik. Sila salin manual.');
-      });
-    });
-
-    printBtn.addEventListener('click', () => {
-      window.print();
-    });
-
-    clearBtn.addEventListener('click', () => {
-      penjagaInput.value = '';
-      alamatPenjagaInput.value = '';
-      namaInput.value = '';
-      kelasSel.value = '';
-      reasonSel.value = '';
-      lainInput.value = '';
-      guruInput.value = '';
-      tarikhInput.value = new Date().toISOString().slice(0,10);
-      previewContainer.style.display = 'none';
-      previewBox.textContent = '';
-    });
-  </script>
-</body>
-</html>
