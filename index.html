@@ -19,14 +19,24 @@
     .btn { margin-top:12px; padding:10px 14px; border:0; background:#2b7ed7; color:#fff; border-radius:6px; cursor:pointer; }
     .btn.secondary { background:#6b7280; }
     .controls { margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
-    /* preview uses monospace so spacing/padding works */
-    #previewBox { margin-top:18px; padding:18px; background:#fafafa; border-radius:6px; white-space:pre-wrap;
-      border:1px solid #e6e9ef; min-height:160px; font-family: "Courier New", monospace; font-size:0.95rem; }
-    .hint { color:#666; margin-top:8px; font-size:0.9rem; }
+
+    /* Preview box - Times New Roman, size 12, A4 format for printing */
+    #previewBox { 
+      margin-top:18px; padding:18px; background:#fff; border-radius:6px; 
+      border:1px solid #e6e9ef; min-height:160px; 
+      font-family: "Times New Roman", Times, serif; font-size:12pt; line-height:1.5;
+      white-space:pre-wrap;
+    }
+
     @media print {
       body * { visibility: hidden; }
       #previewBox, #previewBox * { visibility: visible; }
-      #previewBox { position: absolute; left:0; top:0; width:100%; }
+      #previewBox {
+        position: absolute; left:0; top:0; width:210mm; height:297mm;
+        margin: 25.4mm; /* 1 inch margins all around */
+        box-sizing: border-box;
+        border: none;
+      }
     }
   </style>
 </head>
@@ -88,8 +98,6 @@
     <label for="tarikh">Tarikh Tidak Hadir</label>
     <input id="tarikh" type="date">
 
-    <div class="hint">Semua maklumat perlu diisi sebelum "Preview Surat". Tarikh akan diselaraskan ke kanan sebaris dengan baris terakhir alamat pengirim.</div>
-
     <div style="margin-top:10px;">
       <button id="previewBtn" class="btn">Preview Surat</button>
       <button id="clearBtn" type="button" class="btn secondary">Set Semula</button>
@@ -124,7 +132,6 @@
     const printBtn = document.getElementById('printBtn');
     const clearBtn = document.getElementById('clearBtn');
 
-    // tarikh hari ini sebagai default
     (function setToday() {
       const t = new Date();
       const yyyy = t.getFullYear();
@@ -133,7 +140,6 @@
       tarikhInput.value = `${yyyy}-${mm}-${dd}`;
     })();
 
-    // show/hide input for "Lain-lain"
     reasonSel.addEventListener('change', () => {
       lainDiv.style.display = reasonSel.value === 'lain' ? '' : 'none';
       if (reasonSel.value !== 'lain') lainInput.value = '';
@@ -160,48 +166,33 @@
       const tarikh = tarikhInput.value;
 
       if (reason === 'lain') reason = lainText || '';
-      // validation
-      if (!penjaga) { alert('Sila isi nama Ibu/Bapa/Penjaga.'); return; }
-      if (!alamat) { alert('Sila isi alamat Ibu/Bapa/Penjaga.'); return; }
-      if (!nama) { alert('Sila isi nama murid.'); return; }
-      if (!kelas) { alert('Sila pilih kelas murid.'); return; }
-      if (!reason) { alert('Sila pilih atau nyatakan sebab tidak hadir.'); return; }
-      if (!guru) { alert('Sila isi nama Guru Kelas.'); return; }
+      if (!penjaga || !alamat || !nama || !kelas || !reason || !guru) {
+        alert("Sila lengkapkan semua maklumat.");
+        return;
+      }
 
       const todayStr = formatDateForDisplay(new Date().toISOString().slice(0,10));
       const tarikhDisplay = tarikh ? formatDateForDisplay(tarikh) : '________________';
 
-      // prepare sender lines: include penjaga then alamat lines
       const alamatLines = alamat.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       const senderLines = [penjaga, ...alamatLines];
 
-      // Compose letter using monospace spacing
-      const TOTAL_COL_WIDTH = 70; // adjust width (characters) for alignment
+      const TOTAL_COL_WIDTH = 70;
       let letter = '';
-
-      // print all sender lines except last normally
       if (senderLines.length > 1) {
         for (let i = 0; i < senderLines.length - 1; i++) {
           letter += `${senderLines[i]}\n`;
         }
-      } else {
-        // if only one line, nothing extra before last
       }
-
-      // last sender line should have the date padded to the right (on same text line)
       const lastLine = senderLines[senderLines.length - 1] || '';
-      // ensure date fits: place date at the right side of TOTAL_COL_WIDTH
       const dateStr = todayStr;
-      // Calculate how many spaces to insert between lastLine and date
       let padCount = TOTAL_COL_WIDTH - lastLine.length - dateStr.length;
-      if (padCount < 2) padCount = 4; // minimal spacing if too long
+      if (padCount < 2) padCount = 4;
       const spaces = ' '.repeat(padCount);
       letter += `${lastLine}${spaces}${dateStr}\n\n`;
 
-      // long separator line
       letter += '______________________________________________________________\n\n';
 
-      // Recipient block: teacher name first, then title with class
       letter += `Kepada,\n`;
       letter += `${guru}\n`;
       letter += `Guru Kelas ${kelas}\n`;
@@ -209,7 +200,6 @@
       letter += `28500 Lanchang\n`;
       letter += `Pahang Darul Makmur\n\n`;
 
-      // Body
       letter += `Tuan/Puan,\n\n`;
       letter += `PERMOHONAN CUTI TIDAK HADIR KE SEKOLAH\n\n`;
       letter += `Saya yang bertandatangan di bawah ingin memaklumkan bahawa anak saya:\n\n`;
@@ -227,12 +217,9 @@
       previewBox.scrollIntoView({behavior:'smooth', block:'start'});
     }
 
-    // events
     previewBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      buildPreview();
+      e.preventDefault(); buildPreview();
     });
-
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(previewBox.textContent).then(() => {
         alert('Surat telah disalin ke papan klip.');
@@ -240,11 +227,7 @@
         alert('Tidak dapat menyalin secara automatik. Sila salin manual.');
       });
     });
-
-    printBtn.addEventListener('click', () => {
-      window.print();
-    });
-
+    printBtn.addEventListener('click', () => { window.print(); });
     clearBtn.addEventListener('click', () => {
       penjagaInput.value = '';
       alamatPenjagaInput.value = '';
