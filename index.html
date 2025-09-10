@@ -9,17 +9,13 @@
     .container { max-width:820px; margin:0 auto; background:#fff; padding:22px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     h1,h2 { text-align:center; margin:6px 0; }
     label { display:block; margin-top:12px; font-weight:600; }
-    select, input[type="text"], input[type="date"], textarea {
+    select, input[type="text"], input[type="date"] {
       width:100%; padding:10px; margin-top:6px; border:1px solid #d0d3d9; border-radius:6px; box-sizing:border-box;
     }
-    .row { display:flex; gap:12px; }
-    .col { flex:1; }
     button { margin-top:12px; padding:10px 14px; border:0; background:#2b7ed7; color:#fff; border-radius:6px; cursor:pointer; }
     button.secondary { background:#6b7280; }
-    button:disabled { opacity:0.6; cursor:not-allowed; }
     #previewBox { margin-top:18px; padding:18px; background:#fafafa; border-radius:6px; white-space:pre-wrap; border:1px solid #e6e9ef; min-height:140px; }
     .controls { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
-    .hint { color:#6b7280; margin-top:8px; font-size:0.95rem; }
     @media print {
       body * { visibility: hidden; }
       #previewBox, #previewBox * { visibility: visible; }
@@ -31,6 +27,10 @@
   <div class="container">
     <h1>SK LUBOK TERUA</h1>
     <h2>Surat Rasmi Tidak Hadir ke Sekolah</h2>
+
+    <!-- Nama murid -->
+    <label for="nama">Nama Penuh Murid</label>
+    <input id="nama" type="text" placeholder="Contoh: Ahmad bin Ali">
 
     <!-- Pilih kelas -->
     <label for="kelas">Kelas Murid</label>
@@ -49,40 +49,38 @@
     <label for="reason">Sebab Tidak Hadir</label>
     <select id="reason" aria-label="Pilih Sebab">
       <option value="">-- Pilih Sebab --</option>
-      <option value="demam">Demam</option>
-      <option value="sakit">Sakit lain</option>
-      <option value="rawatan">Temu janji rawatan hospital/klinik</option>
-      <option value="urusan keluarga">Urusan keluarga</option>
-      <option value="kemalangan">Kemalangan</option>
-      <option value="banjir">Banjir / bencana alam</option>
-      <option value="tiada pengangkutan">Tiada pengangkutan</option>
+      <option value="Demam">Demam</option>
+      <option value="Sakit lain">Sakit lain</option>
+      <option value="Temu janji rawatan hospital/klinik">Temu janji rawatan hospital/klinik</option>
+      <option value="Urusan keluarga">Urusan keluarga</option>
+      <option value="Kemalangan">Kemalangan</option>
+      <option value="Banjir / bencana alam">Banjir / bencana alam</option>
+      <option value="Tiada pengangkutan">Tiada pengangkutan</option>
       <option value="lain">Lain-lain</option>
     </select>
 
-    <!-- Input untuk Lain-lain (tersembunyi sehingga pilih Lain-lain) -->
+    <!-- Input untuk Lain-lain -->
     <div id="lainDiv" style="display:none;">
       <label for="lainInput">Nyatakan Sebab (Lain-lain)</label>
-      <input id="lainInput" type="text" placeholder="Contoh: menghadiri majlis keluarga / urusan penting">
+      <input id="lainInput" type="text" placeholder="Contoh: menghadiri majlis keluarga">
     </div>
 
-    <!-- Nama murid (disabled sehingga kelas & sebab dipilih) -->
-    <label for="nama">Nama Penuh Murid</label>
-    <input id="nama" type="text" placeholder="Contoh: Ahmad bin Ali" disabled>
+    <!-- Nama guru kelas -->
+    <label for="guru">Nama Guru Kelas</label>
+    <input id="guru" type="text" placeholder="Contoh: Cikgu Aminah">
 
-    <!-- Tarikh Tidak Hadir (boleh ubah) -->
+    <!-- Tarikh Tidak Hadir -->
     <label for="tarikh">Tarikh Tidak Hadir</label>
     <input id="tarikh" type="date">
 
-    <div class="hint" id="hintMsg">Sila pilih kelas dan sebab terlebih dahulu. Selepas itu, masukkan nama murid dan tekan "Preview Surat".</div>
-
     <div style="margin-top:10px;">
-      <button id="previewBtn" disabled>Preview Surat</button>
+      <button id="previewBtn">Preview Surat</button>
       <button id="clearBtn" type="button" class="secondary">Set Semula</button>
     </div>
 
     <div id="previewContainer" style="display:none;">
-      <label class="block" style="margin-top:14px; font-weight:600;">Isi Kandungan Surat (Preview)</label>
-      <div id="previewBox">Preview akan muncul di sini selepas anda tekan "Preview Surat".</div>
+      <label style="margin-top:14px; font-weight:600;">Isi Kandungan Surat (Preview)</label>
+      <div id="previewBox"></div>
 
       <div class="controls">
         <button id="copyBtn">Salin Surat</button>
@@ -92,22 +90,21 @@
   </div>
 
   <script>
-    // Elemen
     const kelasSel = document.getElementById('kelas');
     const reasonSel = document.getElementById('reason');
     const lainDiv = document.getElementById('lainDiv');
     const lainInput = document.getElementById('lainInput');
     const namaInput = document.getElementById('nama');
+    const guruInput = document.getElementById('guru');
     const tarikhInput = document.getElementById('tarikh');
     const previewBtn = document.getElementById('previewBtn');
     const previewBox = document.getElementById('previewBox');
     const previewContainer = document.getElementById('previewContainer');
-    const hintMsg = document.getElementById('hintMsg');
     const copyBtn = document.getElementById('copyBtn');
     const printBtn = document.getElementById('printBtn');
     const clearBtn = document.getElementById('clearBtn');
 
-    // Set default tarikh ke hari ini
+    // Set default tarikh = hari ini
     (function setToday() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -116,165 +113,29 @@
       tarikhInput.value = `${yyyy}-${mm}-${dd}`;
     })();
 
-    // Enable/disable nama input & preview button bergantung pada pemilihan kelas & sebab
-    function checkEnableNameAndPreview() {
-      const kelas = kelasSel.value;
-      const reason = reasonSel.value;
-      if (reason === 'lain') {
-        lainDiv.style.display = '';
-      } else {
-        lainDiv.style.display = 'none';
-        lainInput.value = '';
-      }
+    reasonSel.addEventListener('change', () => {
+      lainDiv.style.display = reasonSel.value === 'lain' ? '' : 'none';
+      if (reasonSel.value !== 'lain') lainInput.value = '';
+    });
 
-      // Nama boleh ditulis bila kedua-dua pilihan ada
-      if (kelas && reason) {
-        namaInput.disabled = false;
-        namaInput.focus();
-        hintMsg.textContent = 'Sila masukkan nama penuh murid, kemudian tekan "Preview Surat".';
-      } else {
-        namaInput.disabled = true;
-        namaInput.value = '';
-        hintMsg.textContent = 'Sila pilih kelas dan sebab terlebih dahulu. Selepas itu, masukkan nama murid dan tekan "Preview Surat".';
-      }
-
-      // Preview butang diaktifkan hanya bila nama ada diisi
-      previewBtn.disabled = !(kelas && reason && namaInput.value.trim());
-    }
-
-    // Format tarikh (dd/mm/yyyy) untuk paparan
     function formatDateForDisplay(dateStr) {
       if (!dateStr) return '';
       const d = new Date(dateStr);
       if (isNaN(d)) return dateStr;
-      // dd/mm/yyyy
       const dd = String(d.getDate()).padStart(2,'0');
       const mm = String(d.getMonth()+1).padStart(2,'0');
       const yyyy = d.getFullYear();
       return `${dd}/${mm}/${yyyy}`;
     }
 
-    // Build dan tunjukkan preview surat
     function buildPreview() {
       const nama = namaInput.value.trim();
       const kelas = kelasSel.value;
       let reason = reasonSel.value;
       const lainText = lainInput.value.trim();
+      const guru = guruInput.value.trim();
       const tarikh = tarikhInput.value;
 
-      if (reason === 'lain') {
-        reason = lainText || 'lain-lain';
-      }
-
-      // Jika salah satu medan diperlukan kosong - jangan preview
-      if (!kelas || !reason || !nama) {
-        previewContainer.style.display = 'none';
-        return;
-      }
-
-      // Generate surat
-      const todayStr = formatDateForDisplay(new Date().toISOString().slice(0,10));
-      const tarikhDisplay = tarikh ? formatDateForDisplay(tarikh) : '________________';
-      const letter = 
-`SK LUBOK TERUA
-${todayStr}
-
-Guru Kelas,
-SK Lubok Terua
-
-Tuan/Puan,
-
-PERMOHONAN CUTI TIDAK HADIR KE SEKOLAH
-
-Saya yang bertandatangan di bawah:
-
-Nama Murid         : ${nama}
-Kelas              : ${kelas}
-Tarikh Tidak Hadir : ${tarikhDisplay}
-Sebab Tidak Hadir  : ${reason}
-
-Dengan ini memaklumkan bahawa anak saya tidak dapat menghadirkan diri ke sekolah pada tarikh seperti di atas atas alasan yang dinyatakan.
-
-Sekian, terima kasih.
-
-Yang benar,
-
-__________________________
-(Ibu/Bapa/Penjaga)
-`;
-
-      previewBox.textContent = letter;
-      previewContainer.style.display = '';
-      // enable copy & print
-      copyBtn.disabled = false;
-      printBtn.disabled = false;
-    }
-
-    // Event listeners
-    kelasSel.addEventListener('change', () => {
-      checkEnableNameAndPreview();
-      previewBtn.disabled = true;
-      previewContainer.style.display = 'none';
-    });
-
-    reasonSel.addEventListener('change', () => {
-      checkEnableNameAndPreview();
-      previewBtn.disabled = true;
-      previewContainer.style.display = 'none';
-    });
-
-    lainInput.addEventListener('input', () => {
-      // enable preview only if name & kelas exist (preview button will be enabled by name input listener)
-      previewContainer.style.display = 'none';
-    });
-
-    namaInput.addEventListener('input', () => {
-      const hasName = namaInput.value.trim().length > 0;
-      const kelas = kelasSel.value;
-      const reason = reasonSel.value;
-      previewBtn.disabled = !(hasName && kelas && reason);
-    });
-
-    // Manual preview button (user asked to preview after input)
-    previewBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      buildPreview();
-      // scroll to preview
-      previewBox.scrollIntoView({behavior:'smooth', block:'start'});
-    });
-
-    // Copy
-    copyBtn.addEventListener('click', () => {
-      const text = previewBox.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Surat telah disalin ke papan klip.');
-      }).catch(() => {
-        alert('Salinan gagal. Sila salin secara manual.');
-      });
-    });
-
-    // Print
-    printBtn.addEventListener('click', () => {
-      window.print();
-    });
-
-    // Clear / reset
-    clearBtn.addEventListener('click', () => {
-      kelasSel.value = '';
-      reasonSel.value = '';
-      lainInput.value = '';
-      namaInput.value = '';
-      namaInput.disabled = true;
-      tarikhInput.value = new Date().toISOString().slice(0,10);
-      previewContainer.style.display = 'none';
-      hintMsg.textContent = 'Sila pilih kelas dan sebab terlebih dahulu. Selepas itu, masukkan nama murid dan tekan "Preview Surat".';
-      previewBtn.disabled = true;
-    });
-
-    // Inisialisasi awal
-    checkEnableNameAndPreview();
-    copyBtn.disabled = true;
-    printBtn.disabled = true;
-  </script>
-</body>
-</html>
+      if (reason === 'lain') reason = lainText || 'lain-lain';
+      if (!nama || !kelas || !reason || !guru) {
+        alert('Sila lengkapkan semua maklumat.');
