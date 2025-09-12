@@ -56,6 +56,10 @@
     <label for="alamatPenjaga">Alamat Ibu/Bapa/Penjaga (Pengirim)</label>
     <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini (baris baru dipisah Enter)"></textarea>
 
+    <!-- No Telefon Penjaga -->
+    <label for="telefonPenjaga">No. Telefon Penjaga</label>
+    <input id="telefonPenjaga" type="text" placeholder="Contoh: 012-3456789">
+
     <!-- Nama Murid -->
     <label for="nama">Nama Penuh Murid</label>
     <input id="nama" type="text" placeholder="Contoh: Ahmad bin Ali">
@@ -121,6 +125,7 @@
     // Elemen
     const penjagaInput = document.getElementById('penjaga');
     const alamatPenjagaInput = document.getElementById('alamatPenjaga');
+    const telefonPenjagaInput = document.getElementById('telefonPenjaga');
     const namaInput = document.getElementById('nama');
     const kelasSel = document.getElementById('kelas');
     const reasonSel = document.getElementById('reason');
@@ -161,6 +166,7 @@
     function buildPreview() {
       const penjaga = penjagaInput.value.trim();
       const alamat = alamatPenjagaInput.value.trim();
+      const telefon = telefonPenjagaInput.value.trim();
       const nama = namaInput.value.trim();
       const kelas = kelasSel.value;
       let reason = reasonSel.value;
@@ -169,7 +175,7 @@
       const tarikh = tarikhInput.value;
 
       if (reason === 'lain') reason = lainText || '';
-      if (!penjaga || !alamat || !nama || !kelas || !reason || !guru) {
+      if (!penjaga || !alamat || !telefon || !nama || !kelas || !reason || !guru) {
         alert("Sila lengkapkan semua maklumat.");
         return;
       }
@@ -213,7 +219,7 @@
       letter += `tidak dapat hadir ke sekolah pada tarikh yang dinyatakan di atas.\n\n`;
       letter += `Sekian, terima kasih.\n\n`;
       letter += `Yang benar,\n\n\n`;
-      letter += `${penjaga}\n(Ibu/Bapa/Penjaga)\n`;
+      letter += `${penjaga}\n`;
 
       previewBox.textContent = letter;
       previewContainer.style.display = '';
@@ -234,6 +240,7 @@
     clearBtn.addEventListener('click', () => {
       penjagaInput.value = '';
       alamatPenjagaInput.value = '';
+      telefonPenjagaInput.value = '';
       namaInput.value = '';
       kelasSel.value = '';
       reasonSel.value = '';
