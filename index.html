@@ -57,7 +57,7 @@
     <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini (baris baru dipisah Enter)"></textarea>
 
     <!-- No Telefon Penjaga -->
-    <label for="telefonPenjaga">No. Telefon Penjaga</label>
+    <label for="telefonPenjaga">No. Telefon Ibu/Bapa/Penjaga</label>
     <input id="telefonPenjaga" type="text" placeholder="Contoh: 012-3456789">
 
     <!-- Nama Murid -->
@@ -220,6 +220,7 @@
       letter += `Sekian, terima kasih.\n\n`;
       letter += `Yang benar,\n\n\n`;
       letter += `${penjaga}\n`;
+      letter += `No. Tel: ${telefon}\n(Ibu/Bapa/Penjaga)\n`;
 
       previewBox.textContent = letter;
       previewContainer.style.display = '';
