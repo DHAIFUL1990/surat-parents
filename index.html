@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Surat Tidak Hadir - SK LUBOK TERUA</title>
-   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     body { font-family: Arial, sans-serif; background: url('photo_2022-08-13_15-02-40.jpg') no-repeat center center fixed;
       background-size: cover;
@@ -57,8 +57,8 @@
     <textarea id="alamatPenjaga" placeholder="Isi alamat penuh di sini (baris baru dipisah Enter)"></textarea>
 
     <!-- No Telefon Penjaga -->
-    <label for="telefonPenjaga">No. Telefon Ibu/Bapa/Penjaga</label>
-    <input id="telefonPenjaga" type="text" placeholder="Contoh: 012-3456789">
+    <label for="telefon">No Telefon Penjaga</label>
+    <input id="telefon" type="text" placeholder="Contoh: 012-3456789">
 
     <!-- Nama Murid -->
     <label for="nama">Nama Penuh Murid</label>
@@ -125,7 +125,7 @@
     // Elemen
     const penjagaInput = document.getElementById('penjaga');
     const alamatPenjagaInput = document.getElementById('alamatPenjaga');
-    const telefonPenjagaInput = document.getElementById('telefonPenjaga');
+    const telefonInput = document.getElementById('telefon');
     const namaInput = document.getElementById('nama');
     const kelasSel = document.getElementById('kelas');
     const reasonSel = document.getElementById('reason');
@@ -166,7 +166,7 @@
     function buildPreview() {
       const penjaga = penjagaInput.value.trim();
       const alamat = alamatPenjagaInput.value.trim();
-      const telefon = telefonPenjagaInput.value.trim();
+      const telefon = telefonInput.value.trim();
       const nama = namaInput.value.trim();
       const kelas = kelasSel.value;
       let reason = reasonSel.value;
@@ -179,6 +179,9 @@
         alert("Sila lengkapkan semua maklumat.");
         return;
       }
+
+      // Tukar title ikut nama murid
+      document.title = `Surat Tidak Hadir - ${nama}`;
 
       const todayStr = formatDateForDisplay(new Date().toISOString().slice(0,10));
       const tarikhDisplay = tarikh ? formatDateForDisplay(tarikh) : '________________';
@@ -219,9 +222,8 @@
       letter += `tidak dapat hadir ke sekolah pada tarikh yang dinyatakan di atas.\n\n`;
       letter += `Sekian, terima kasih.\n\n`;
       letter += `Yang benar,\n\n\n`;
-      letter += `${penjaga}\n`;
-      letter += `(Ibu/Bapa/Penjaga)\n`;
-      letter += `No. Tel: ${telefon}\n`;
+      letter += `${penjaga}\n(Ibu/Bapa/Penjaga)\n`;
+      letter += `No. Telefon: ${telefon}\n`;
 
       previewBox.textContent = letter;
       previewContainer.style.display = '';
@@ -242,7 +244,7 @@
     clearBtn.addEventListener('click', () => {
       penjagaInput.value = '';
       alamatPenjagaInput.value = '';
-      telefonPenjagaInput.value = '';
+      telefonInput.value = '';
       namaInput.value = '';
       kelasSel.value = '';
       reasonSel.value = '';
@@ -251,6 +253,7 @@
       tarikhInput.value = new Date().toISOString().slice(0,10);
       previewContainer.style.display = 'none';
       previewBox.textContent = '';
+      document.title = "Surat Tidak Hadir - SK LUBOK TERUA"; // reset asal
     });
   </script>
 </body>
